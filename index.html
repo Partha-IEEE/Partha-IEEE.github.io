@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Proposal in HTML Text_Partha Pratim Sarkar_1008365</title>
+<style>
+  :root{ --ink:#0a0a0a; --bg:#ffffff; --card:#ffffff; --muted:#64748b; --line:#e2e8f0; }
+  /* Switch to dark theme: --bg:#000000; --ink:#f1f5f9 */
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+  .wrap{max-width:980px;margin:0 auto;padding:24px}
+  header{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+  h1{margin:0;font-size:28px;letter-spacing:.2px}
+  .sub{color:var(--muted)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:12px 0}
+  h2{margin:0 0 8px 0;font-size:18px}
+  p{margin:0 0 10px 0}
+  ul,ol{margin:6px 0 10px 22px}
+  figure{margin:0}
+  figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+  th{background:#f1f5f9}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <header>
+  <h1>Proposal: Interactive Visualization of Intracellular Delivery Results</h1>
+  <div class="sub"><strong>Name:</strong> Partha Pratim Sarkar</div>
+  <div class="small">
+    <strong>ID:</strong> 1008365 &nbsp; | &nbsp; <strong>Position:</strong> PhD Student, EPD Pillar
+  </div>
+</header>
+
+  <section aria-label="Background">
+    <h2>Background</h2>
+    <p>Intracellular delivery of biomolecules is a fundamental challenge in advancing gene editing, cancer immunotherapy, and other biomedical applications. My research focuses on non-viral delivery platforms, specifically microfluidic and filter-based mechanoporation using viscoelastic media. These systems transiently deform cell membranes, enabling molecular entry while preserving viability.</p>
+    <p>The dataset includes multiple cell types tested with FITC-dextran cargoes of varying molecular sizes: 4 kDa (small molecules), 70 kDa (macromolecules), and 2000 kDa (very large cargoes). Cells are treated with polymers such as methylcellulose (MC), polyethylene oxide (PEO), and xanthan gum (XG) at concentrations of 0.1%, 0.5%, and 1.0%. The outcomes measured are efficiency, viability, and recovery.</p>
+  </section>
+
+  <section aria-label="Objectives">
+    <h2>Objectives</h2>
+    <ol>
+      <li>Present the dataset in a clear and accessible web-based format.</li>
+      <li>Enable filtering by cell type, polymer, concentration, and cargo size.</li>
+      <li>Display results with intuitive visuals, including scatter plots (efficiency vs viability), heatmaps, and summary metrics.</li>
+      <li>Provide a data table for transparency and reproducibility.</li>
+      <li>Ensure the design is mobile-friendly, accessible, and easily shareable online.</li>
+    </ol>
+  </section>
+
+  <section aria-label="Users and Use Cases">
+    <h2>Users and Use Cases</h2>
+    <p>- Researchers: Compare conditions across polymers, concentrations, and cargo sizes to identify optimal trade-offs.<br/>
+    - Supervisors and Collaborators: Validate reproducibility and highlight experimental trends.<br/>
+    - Students and Newcomers: Understand how molecular size and polymer conditions influence outcomes.</p>
+  </section>
+
+  <section aria-label="Methods">
+    <h2>Methods</h2>
+    <p>The project will use a lightweight single-page HTML application. The dataset will be structured in CSV or JSON with fields: <code>cell_type, polymer, conc_pct, cargo_size, eff_pct, via_pct, rec_pct</code>.</p>
+    <p>Key features include: scatter plot (Viability vs Efficiency), mini-heatmaps (average efficiency across polymer × concentration × cargo size), filters for each dimension, KPI cards, and a sortable data table. Technology: HTML/CSS/JS with Plotly.js or D3.js. Hosting on GitHub Pages.</p>
+  </section>
+
+  <section aria-label="Significance">
+    <h2>Significance</h2>
+    <p>The interactive tool will surface patterns and trade-offs that static charts often hide, improving validation and communication with supervisors, collaborators, and broader audiences.</p>
+  </section>
+
+  <section aria-label="Plan and Timeline">
+    <h2>Plan and Timeline</h2>
+    <ul>
+      <li>Week 3–4: Finalize narrative and layout; structure dataset.</li>
+      <li>Week 5–6: Implement scatter plot and filters; add KPI metrics.</li>
+      <li>Week 7–10: Integrate heatmaps and data table; usability testing.</li>
+      <li>Week 11–12: Polish visuals, improve accessibility, and deploy online.</li>
+    </ul>
+  </section>
+
+  <section aria-label="Static Visual">
+  <h2>Static Visual</h2>
+  <figure style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <img src="static_visual.png" alt="Static composite visual" style="max-width:90%;border:1px solid #e2e8f0;border-radius:12px;" />
+    <figcaption style="font-size:13px;color:#64748b;text-align:center;">
+      Fig. — Static composite visual (scatter + mini-heatmaps).
+    </figcaption>
+  </figure>
+</section>
+
+
+  <section aria-label="Sample Rows">
+    <h2>Sample Rows (subset)</h2>
+    <table>
+      <thead><tr><th>Cell</th><th>Polymer</th><th>Conc %</th><th>Cargo</th><th>Eff %</th><th>Via %</th><th>Rec %</th></tr></thead>
+      <tbody>
+        <tr><td>Jurkat</td><td>MC</td><td>0.1</td><td>4 kDa</td><td>86</td><td>97</td><td>93</td></tr>
+        <tr><td>Jurkat</td><td>MC</td><td>0.5</td><td>4 kDa</td><td>92</td><td>96</td><td>93</td></tr>
+        <tr><td>Jurkat</td><td>MC</td><td>1.0</td><td>4 kDa</td><td>94</td><td>95</td><td>92</td></tr>
+        <tr><td>Jurkat</td><td>PEO</td><td>0.1</td><td>4 kDa</td><td>82</td><td>97</td><td>92</td></tr>
+        <tr><td>Jurkat</td><td>PEO</td><td>0.5</td><td>4 kDa</td><td>88</td><td>96</td><td>92</td></tr>
+        <tr><td>Jurkat</td><td>PEO</td><td>1.0</td><td>4 kDa</td><td>90</td><td>95</td><td>91</td></tr>
+        <tr><td>Jurkat</td><td>XG</td><td>0.1</td><td>4 kDa</td><td>84</td><td>97</td><td>92</td></tr>
+        <tr><td>Jurkat</td><td>XG</td><td>0.5</td><td>4 kDa</td><td>89</td><td>96</td><td>92</td></tr>
+        <tr><td>MDA-MB-231</td><td>MC</td><td>0.1</td><td>70 kDa</td><td>78</td><td>96</td><td>91</td></tr>
+        <tr><td>MDA-MB-231</td><td>MC</td><td>0.5</td><td>70 kDa</td><td>86</td><td>95</td><td>91</td></tr>
+        <tr><td>MDA-MB-231</td><td>MC</td><td>1.0</td><td>70 kDa</td><td>90</td><td>94</td><td>90</td></tr>
+        <tr><td>MDA-MB-231</td><td>PEO</td><td>0.1</td><td>70 kDa</td><td>76</td><td>96</td><td>90</td></tr>
+        <tr><td>MDA-MB-231</td><td>PEO</td><td>0.5</td><td>70 kDa</td><td>83</td><td>95</td><td>90</td></tr>
+        <tr><td>MDA-MB-231</td><td>PEO</td><td>1.0</td><td>70 kDa</td><td>86</td><td>94</td><td>89</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+</body>
+</html>
