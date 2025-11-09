@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>All Charts – D3.js</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    body{
+      margin:0;
+      font-family:"Times New Roman", Georgia, serif;
+      background:#ffffff;
+    }
+
+    .chart-heading{
+      font-size:28px;
+      margin:0 0 6px 0;
+    }
+    .chart-controls{
+      margin:0 0 8px 0;
+    }
+    .chart-controls button{
+      padding:4px 10px;
+      font-size:13px;
+      margin-right:6px;
+    }
+
+    /* ---------- CHART 1 (vector space) ---------- */
+    #notes1{
+      width:880px;
+      margin:20px auto 0;
+      background:#eef2f3;
+      padding:10px 18px;
+      font-size:13px;
+      box-sizing:border-box;
+    }
+    #notes1 h4{margin:0 0 4px;}
+    #notes1 ol{margin:4px 0 4px 18px; padding:0;}
+
+    #chart1-container{
+      width:880px;
+      margin:20px auto 20px;
+      background:#ffffff;
+      padding:20px;
+      box-shadow:0 0 4px rgba(0,0,0,0.25);
+      box-sizing:border-box;
+      font-family:"Helvetica Neue", Arial, sans-serif;
+    }
+    .axis-grid line{
+      stroke:#cfcfcf;
+      stroke-width:1;
+    }
+    .basis-arrow{
+      stroke:#333;
+      stroke-width:2;
+      fill:none;
+    }
+    .basis-arrow.dashed-beta{
+      stroke:#264c7c;
+      stroke-dasharray:6 4;
+    }
+    .basis-arrow.dashed-alpha{
+      stroke:#2a9d8f;
+      stroke-dasharray:6 4;
+    }
+    .vector-label{
+      font-style:italic;
+      font-size:16px;
+    }
+    #status{
+      margin-top:10px;
+      font-size:13px;
+      color:#444;
+    }
+
+    /* ---------- CHART 2 (frequency – interactive area plot) ---------- */
+    #notes2{
+      width:880px;
+      margin:20px auto 0;
+      background:#eef2f3;
+      padding:10px 18px;
+      font-size:13px;
+      box-sizing:border-box;
+    }
+    #notes2 h4{margin:0 0 4px;}
+    #notes2 ol{margin:4px 0 4px 18px; padding:0;}
+
+    #slide2{
+      width:960px;
+      height:540px;
+      margin:0 auto 40px;
+      position:relative;
+    }
+    #title2{
+      position:absolute;
+      left:60px;
+      top:60px;
+      font-size:28px;
+    }
+    #controls2{
+      position:absolute;
+      left:60px;
+      top:100px;
+    }
+    #controls2 button{
+      padding:4px 10px;
+      font-size:13px;
+      margin-right:6px;
+    }
+    #chart2-frame{
+      position:absolute;
+      left:60px;
+      right:60px;
+      top:170px;
+      height:170px;
+      background:#ffffff;
+      border:1px solid #555;
+      padding:5px 10px;
+      box-sizing:border-box;
+    }
+    #chart2{
+      display:block;
+      margin:0;
+    }
+    #caption2{
+      position:absolute;
+      left:60px;
+      bottom:45px;
+      font-size:13px;
+      width:840px;
+    }
+    .axis path, .axis line{
+      stroke:#555;
+      stroke-width:1;
+      shape-rendering:crispEdges;
+    }
+    .axis text{
+      font-size:10px;
+    }
+    .series-area{
+      fill-opacity:0.55;
+      stroke-width:0;
+      cursor:pointer;
+    }
+    .series-area.faded{
+      opacity:0.15;
+    }
+    .legend-item{
+      cursor:pointer;
+      font-size:11px;
+    }
+    .legend-swatch{
+      stroke:#555;
+      stroke-width:0.4;
+    }
+
+    /* ---------- CHART 3 (Venn) ---------- */
+    #notes3{
+      width:880px;
+      margin:20px auto 0;
+      background:#eef2f3;
+      padding:10px 18px;
+      font-size:13px;
+      box-sizing:border-box;
+    }
+    #notes3 h4{margin:0 0 4px;}
+    #notes3 ol{margin:4px 0 4px 18px; padding:0;}
+
+    #slide3{
+      width:960px;
+      height:540px;
+      margin:0 auto 40px;
+      position:relative;
+    }
+    #title3{
+      position:absolute;
+      left:60px;
+      top:20px;
+      font-size:28px;
+    }
+    #controls3{
+      position:absolute;
+      left:60px;
+      top:60px;
+      z-index:5;
+    }
+    #controls3 button{
+      padding:4px 10px;
+      font-size:13px;
+      margin-right:6px;
+    }
+    #chart3-frame{
+      position:absolute;
+      left:160px;
+      right:60px;
+      top:90px;
+      height:340px;
+      background:#ffffff;
+      box-shadow:0 0 2px rgba(0,0,0,.4);
+      box-sizing:border-box;
+      padding:10px;
+    }
+    #status3{
+      position:absolute;
+      left:60px;
+      top:440px;
+      width:840px;
+      font-size:13px;
+    }
+    #chart3{
+      display:block;
+    }
+    .venn-circle{
+      stroke:#555;
+      stroke-width:1;
+      fill-opacity:.45;
+      cursor:pointer;
+      transition:stroke-width .2s, opacity .2s;
+    }
+    .delete-circle  { fill:#cbc6ec; }
+    .replace-circle { fill:#d5c0bc; }
+    .rewrite-circle { fill:#f0dd93; }
+
+    .label-title{
+      font-size:22px;
+      cursor:pointer;
+    }
+    .label-roman{
+      font-size:16px;
+      font-weight:bold;
+      pointer-events:none;
+      transition:opacity .2s, font-size .2s;
+    }
+
+    /* ---------- CHART 4 (simple bars) ---------- */
+    #notes4{
+      width:880px;
+      margin:20px auto 0;
+      background:#eef2f3;
+      padding:10px 18px;
+      font-size:13px;
+      box-sizing:border-box;
+    }
+    #notes4 h4{margin:0 0 4px;}
+    #notes4 ol{margin:4px 0 4px 18px;padding:0;}
+
+    #chart4-container{
+      width:880px;
+      margin:20px auto 30px;
+      background:#ffffff;
+      padding:30px 30px 30px 30px;
+      box-shadow:0 0 3px rgba(0,0,0,0.35);
+      box-sizing:border-box;
+    }
+    #status4{
+      margin-top:8px;
+      font-size:13px;
+    }
+    #chart4{
+      display:block;
+    }
+    .main-bar{
+      fill:#e4c86c;
+      stroke:#777;
+      stroke-width:3;
+      cursor:pointer;
+    }
+    .ghost-bar{
+      fill:none;
+      stroke:#e4c86c;
+      stroke-width:3;
+      stroke-dasharray:8 5;
+      cursor:pointer;
+    }
+    .model-label{ font-size:26px; }
+    .value-label{ font-size:22px; }
+    .chart-title{ font-size:34px; }
+    .axis-bar text{ font-size:18px; }
+
+    /* ---------- CHART 5 (function) ---------- */
+    #notes5{
+      width:880px;
+      margin:20px auto 0;
+      background:#eef2f3;
+      padding:10px 18px;
+      font-size:13px;
+      box-sizing:border-box;
+    }
+    #notes5 h4{margin:0 0 4px;}
+    #notes5 ol{margin:4px 0 4px 18px;padding:0;}
+
+    #slide5{
+      width:960px;
+      height:540px;
+      margin:0 auto 40px;
+      position:relative;
+    }
+    #title5{
+      position:absolute;
+      left:60px;
+      top:60px;
+      font-size:28px;
+    }
+    #controls5{
+      position:absolute;
+      left:60px;
+      top:130px;
+    }
+    #controls5 button{
+      padding:4px 10px;
+      font-size:13px;
+      margin-right:6px;
+    }
+    #chart5-frame{
+      position:absolute;
+      left:60px;
+      right:60px;
+      top:170px;
+      height:260px;
+      background:#ffffff;
+      box-sizing:border-box;
+      padding:10px 10px 5px 10px;
+    }
+    #status5{
+      position:absolute;
+      left:60px;
+      top:450px;
+      width:840px;
+      font-size:13px;
+    }
+    #chart5{
+      display:block;
+    }
+    .grid line{
+      stroke:#e0e0e0;
+      stroke-width:1;
+      shape-rendering:crispEdges;
+    }
+    .pdf-line{
+      fill:none;
+      stroke-width:3;
+      cursor:pointer;
+    }
+    .shade{
+      fill:#bfbfbf;
+      opacity:0.45;
+    }
+    .shade-dark{
+      fill:#777777;
+      opacity:0.65;
+    }
+    .legend-item{
+      font-size:17px;
+      cursor:pointer;
+    }
+    .legend-line{
+      stroke-width:3;
+      fill:none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CHART 1 -->
+  <div id="notes1">
+    <h4>Notes: Chart 1 (vector space)</h4>
+    <ol>
+      <li>Drew an 8×4 grid to show the abstract vector space.</li>
+      <li>Placed four basis-like points e<sup>β</sup><sub>2</sub>, e<sup>β</sup><sub>1</sub>, e<sup>α</sup><sub>2</sub>, e<sup>α</sup><sub>1</sub> on the grid.</li>
+      <li>Animated solid and dashed arrows to show different vector relations; hover to see each vector’s label.</li>
+    </ol>
+  </div>
+
+  <div id="chart1-container">
+    <h3 class="chart-heading">Chart 1 (vector space)</h3>
+    <div id="controls1" class="chart-controls">
+      <button id="prevStep1">Previous step</button>
+      <button id="nextStep1">Next step</button>
+    </div>
+    <svg id="chart1" width="840" height="320"></svg>
+    <div id="status">Hover over a vector to see its name.</div>
+  </div>
+
+  <!-- CHART 2 (frequency) -->
+  <div id="notes2">
+    <h4>Notes: Chart 2 (frequency)</h4>
+    <ol>
+      <li>Shared x–axis (Year) and y–axis (Frequency) for all four model families.</li>
+      <li>Drew smooth area curves for set, sequence, vector, and end-to-end models.</li>
+      <li>Legend and areas are interactive: hover/tap a family to highlight it and fade the others; buttons walk through build steps.</li>
+    </ol>
+  </div>
+
+  <div id="slide2">
+    <div id="title2">Chart 2 (frequency)</div>
+
+    <div id="controls2">
+      <button id="prevStep2">Previous step</button>
+      <button id="nextStep2">Next step</button>
+    </div>
+
+    <div id="chart2-frame">
+      <svg id="chart2" width="820" height="140"></svg>
+    </div>
+
+    <div id="caption2">Note that the values are not to be exactly replicated</div>
+  </div>
+
+  <!-- CHART 3 (Venn) -->
+  <div id="notes3">
+    <h4>Notes: Chart 3 (Venn)</h4>
+    <ol>
+      <li>Drew three overlapping circles for Delete, Replace, and Rewrite with arbitrary radii.</li>
+      <li>Placed regions I–VII into the single and overlapping areas.</li>
+      <li>Added step buttons and click interaction: clicking a circle highlights everything inside that set.</li>
+    </ol>
+  </div>
+
+  <div id="slide3">
+    <div id="title3">Chart 3 (Venn)</div>
+
+    <div id="controls3">
+      <button id="prevStep3">Previous step</button>
+      <button id="nextStep3">Next step</button>
+    </div>
+
+    <div id="chart3-frame">
+      <svg id="chart3" width="720" height="330"></svg>
+    </div>
+
+    <div id="status3">
+      Initial view: full Venn diagram. Click a circle (or its label) to highlight everything inside that set.
+    </div>
+  </div>
+
+  <!-- CHART 4 (bars) -->
+  <div id="notes4">
+    <h4>Notes: Chart 4 (simple bars)</h4>
+    <ol>
+      <li>Single y-scale from 0 to 100 for both axis and bars.</li>
+      <li>Grey box is taller than the axis, with a mirrored 100% tick on the right edge.</li>
+      <li>Buttons show the build steps; hover or tap a bar to see values.</li>
+    </ol>
+  </div>
+
+  <div id="chart4-container">
+    <h3 class="chart-heading">Chart 4 (simple bars)</h3>
+    <div id="controls4" class="chart-controls">
+      <button id="prevStep4">Previous step</button>
+      <button id="nextStep4">Next step</button>
+    </div>
+    <svg id="chart4" width="820" height="300"></svg>
+    <div id="status4">
+      Initial view: full chart. Use the buttons to walk through how it was built, or hover/tap a bar to see values.
+    </div>
+  </div>
+
+  <!-- CHART 5 (function) -->
+  <div id="notes5">
+    <h4>Notes: Chart 5 (function)</h4>
+    <ol>
+      <li>Used D3 to build an x–y frame with grid lines and probability densities on top.</li>
+      <li>Drew two smooth curves for <i>p(x, y = 0)·v(x)</i> and <i>p(x, y = 1)·v(x)</i> using normal PDFs.</li>
+      <li>Added the shaded decision region, dashed cut lines, and legend.</li>
+    </ol>
+  </div>
+
+  <div id="slide5">
+    <div id="title5">Chart 5 (function)</div>
+
+    <div id="controls5">
+      <button id="prevStep5">Previous step</button>
+      <button id="nextStep5">Next step</button>
+    </div>
+
+    <div id="chart5-frame">
+      <svg id="chart5" width="820" height="230"></svg>
+    </div>
+
+    <div id="status5"></div>
+  </div>
+
+  <!-- ========== SCRIPTS ========== -->
+
+  <!-- CHART 1 SCRIPT: your code + step opacity control -->
+  <script>
+  (function(){
+    const svg = d3.select("#chart1");
+    const width  = +svg.attr("width");
+    const height = +svg.attr("height");
+    const margin = {top:25,right:25,bottom:25,left:25};
+    const innerWidth  = width  - margin.left - margin.right;
+    const innerHeight = height - margin.top  - margin.bottom;
+
+    const g = svg.append("g")
+        .attr("transform",`translate(${margin.left},${margin.top})`);
+
+    const xScale = d3.scaleLinear().domain([0,8]).range([0,innerWidth]);
+    const yScale = d3.scaleLinear().domain([0,4]).range([innerHeight,0]);
+
+    const xTicks = d3.range(0,9);
+    const yTicks = d3.range(0,5);
+
+    g.append("g").attr("class","axis-grid")
+      .selectAll("line.vline")
+      .data(xTicks).enter().append("line")
+        .attr("x1",d=>xScale(d)).attr("y1",yScale(0))
+        .attr("x2",d=>xScale(d)).attr("y2",yScale(4));
+
+    g.append("g").attr("class","axis-grid")
+      .selectAll("line.hline")
+      .data(yTicks).enter().append("line")
+        .attr("x1",xScale(0)).attr("y1",d=>yScale(d))
+        .attr("x2",xScale(8)).attr("y2",d=>yScale(d));
+
+    svg.append("defs").append("marker")
+        .attr("id","arrow-head")
+        .attr("viewBox","0 0 10 10")
+        .attr("refX",9).attr("refY",5)
+        .attr("markerWidth",6).attr("markerHeight",6)
+        .attr("orient","auto-start-reverse")
+      .append("path")
+        .attr("d","M 0 0 L 10 5 L 0 10 z")
+        .attr("fill","#333");
+
+    const points = {
+      e2beta : {x:1, y:1, base:"e", sup:"β", sub:"2"},
+      e1beta : {x:5, y:1, base:"e", sup:"β", sub:"1"},
+      e2alpha: {x:3, y:3, base:"e", sup:"α", sub:"2"},
+      e1alpha: {x:7, y:3, base:"e", sup:"α", sub:"1"}
+    };
+
+    const vectors = [
+      {type:"solid", from:"e2beta",  to:"e2alpha"},
+      {type:"solid", from:"e2alpha", to:"e1alpha"},
+      {type:"solid", from:"e1alpha", to:"e1beta"},
+      {type:"solid", from:"e1beta",  to:"e2beta"},
+      {type:"beta",  from:"e2beta",  to:"e1alpha"},
+      {type:"alpha", from:"e2alpha", to:"e1beta"}
+    ];
+
+    const status = d3.select("#status");
+
+    function formatPointHTML(key){
+      const p = points[key];
+      return `<span style="font-style:italic;">${p.base}<sup>${p.sup}</sup><sub>${p.sub}</sub></span>`;
+    }
+
+    const lines = g.append("g").selectAll("line.vector")
+      .data(vectors).enter().append("line")
+        .attr("class",d=>{
+          let c="basis-arrow";
+          if(d.type==="beta")  c+=" dashed-beta";
+          if(d.type==="alpha") c+=" dashed-alpha";
+          return c;
+        })
+        .attr("marker-end","url(#arrow-head)")
+        .attr("x1",d=>xScale(points[d.from].x))
+        .attr("y1",d=>yScale(points[d.from].y))
+        .attr("x2",d=>xScale(points[d.from].x))
+        .attr("y2",d=>yScale(points[d.from].y))
+        .on("mouseover",function(event,d){
+          d3.select(this).attr("stroke-width",4);
+          status.html(
+            `${formatPointHTML(d.from)} &rarr; ${formatPointHTML(d.to)}`
+          );
+        })
+        .on("mouseout",function(){
+          d3.select(this).attr("stroke-width",2);
+          renderStep1();
+        });
+
+    // original animation
+    lines.transition()
+        .delay((d,i)=>300*i)
+        .duration(800)
+        .attr("x2",d=>xScale(points[d.to].x))
+        .attr("y2",d=>yScale(points[d.to].y));
+
+    const labelOffset = {
+      e2beta : {dx:-20, dy:25},
+      e1beta : {dx:  0, dy:25},
+      e2alpha: {dx:-10, dy:-10},
+      e1alpha: {dx:  5, dy:-10}
+    };
+
+    const labelGroup = g.selectAll("text.label")
+      .data(Object.entries(points))
+      .enter().append("text")
+        .attr("class","vector-label")
+        .attr("x",([k,p])=>xScale(p.x)+labelOffset[k].dx)
+        .attr("y",([k,p])=>yScale(p.y)+labelOffset[k].dy);
+
+    labelGroup.each(function([k,p]){
+      const t = d3.select(this);
+      t.append("tspan").text(p.base);
+      t.append("tspan")
+        .attr("baseline-shift","super")
+        .attr("font-size","70%")
+        .text(p.sup);
+      t.append("tspan")
+        .attr("baseline-shift","sub")
+        .attr("font-size","70%")
+        .text(p.sub);
+    });
+
+    const solidLines  = lines.filter(d=>d.type==="solid");
+    const dashedLines = lines.filter(d=>d.type!=="solid");
+
+    const steps1 = [
+      "Step 1: I started with the 8×4 grid as the background for the vector space.",
+      "Step 2: I placed the four basis-like points eᵝ₂, eᵝ₁, eᵅ₂, eᵅ₁ on the grid.",
+      "Step 3: I added the solid edges to form the quadrilateral between these points.",
+      "Step 4: I overlaid the dashed α and β vectors to show cross connections."
+    ];
+    let stepIndex1 = -1; // -1 = full view
+
+    function applyStepVisuals1(){
+      labelGroup.style("opacity",0);
+      solidLines.style("opacity",0);
+      dashedLines.style("opacity",0);
+
+      if(stepIndex1 === -1){
+        labelGroup.style("opacity",1);
+        solidLines.style("opacity",1);
+        dashedLines.style("opacity",1);
+        return;
+      }
+      if(stepIndex1 >= 1){
+        labelGroup.style("opacity",1);
+      }
+      if(stepIndex1 >= 2){
+        solidLines.style("opacity",1);
+      }
+      if(stepIndex1 >= 3){
+        dashedLines.style("opacity",1);
+      }
+    }
+
+    function renderStep1(){
+      if(stepIndex1 === -1){
+        status.text("Initial view: full vector diagram. Hover over a vector to see its name.");
+      }else{
+        status.text(steps1[stepIndex1]);
+      }
+      applyStepVisuals1();
+    }
+
+    document.getElementById("nextStep1").addEventListener("click", ()=>{
+      if(stepIndex1 === -1) stepIndex1 = 0;
+      else stepIndex1 = (stepIndex1 + 1) % steps1.length;
+      renderStep1();
+    });
+
+    document.getElementById("prevStep1").addEventListener("click", ()=>{
+      if(stepIndex1 === -1) stepIndex1 = steps1.length - 1;
+      else{
+        stepIndex1--;
+        if(stepIndex1 < 0) stepIndex1 = steps1.length - 1;
+      }
+      renderStep1();
+    });
+
+    renderStep1();
+  })();
+  </script>
+
+  <!-- CHART 2 SCRIPT -->
+  <script>
+  (function(){
+    const svg = d3.select("#chart2");
+    const width  = +svg.attr("width");
+    const height = +svg.attr("height");
+
+    const margin = {top:10,right:10,bottom:22,left:50};
+    const innerWidth  = width  - margin.left - margin.right;
+    const innerHeight = height - margin.top  - margin.bottom;
+
+    const g = svg.append("g")
+      .attr("transform",`translate(${margin.left},${margin.top})`);
+
+    const data = [
+      {year:1980, set:0, seq:0, vec:0, end2end:0},
+      {year:1983, set:0.2, seq:0, vec:0, end2end:0},
+      {year:1986, set:1, seq:0, vec:0, end2end:0},
+      {year:1989, set:0, seq:0.8, vec:0, end2end:0},
+      {year:1992, set:0, seq:0, vec:1.0, end2end:0},
+      {year:1995, set:0.3, seq:0.5, vec:0.2, end2end:0},
+      {year:1998, set:0.8, seq:0.6, vec:0.9, end2end:0},
+      {year:2001, set:1.2, seq:0.5, vec:0.7, end2end:0},
+      {year:2004, set:2.0, seq:1.5, vec:1.3, end2end:0},
+      {year:2007, set:1.3, seq:2.0, vec:2.1, end2end:0},
+      {year:2010, set:1.0, seq:1.6, vec:2.0, end2end:1.5},
+      {year:2012, set:1.2, seq:3.5, vec:3.0, end2end:3.5},
+      {year:2014, set:1.5, seq:4.5, vec:4.2, end2end:4.8},
+      {year:2016, set:2.0, seq:5.0, vec:4.8, end2end:6.0},
+      {year:2018, set:2.2, seq:4.0, vec:5.5, end2end:9.0},
+      {year:2020, set:1.0, seq:2.0, vec:2.8, end2end:3.0},
+      {year:2022, set:0.2, seq:0.3, vec:0.4, end2end:0.2}
+    ];
+
+    const series = [
+      {key:"set",     name:"Set model",       color:"#84c7b9"},
+      {key:"seq",     name:"Sequence model",  color:"#7ab2f6"},
+      {key:"vec",     name:"Vector model",    color:"#c688e6"},
+      {key:"end2end", name:"End-to-end",      color:"#e68aa4"}
+    ];
+
+    const x = d3.scaleLinear()
+      .domain([1980,2022])
+      .range([0,innerWidth]);
+
+    const y = d3.scaleLinear()
+      .domain([0,10])
+      .range([innerHeight,0]);
+
+    const xAxis = d3.axisBottom(x)
+      .tickFormat(d3.format("d"))
+      .ticks(8);
+    const yAxis = d3.axisLeft(y)
+      .ticks(5);
+
+    g.append("g")
+      .attr("class","axis")
+      .attr("transform",`translate(0,${innerHeight})`)
+      .call(xAxis);
+
+    g.append("g")
+      .attr("class","axis")
+      .call(yAxis);
+
+    g.append("text")
+      .attr("x",-innerHeight/2)
+      .attr("y",-35)
+      .attr("transform","rotate(-90)")
+      .attr("text-anchor","middle")
+      .attr("font-size",11)
+      .text("Frequency");
+
+    g.append("text")
+      .attr("x",innerWidth/2)
+      .attr("y",innerHeight+18)
+      .attr("text-anchor","middle")
+      .attr("font-size",11)
+      .text("Year");
+
+    const area = d3.area()
+      .curve(d3.curveBasis)
+      .x(d=>x(d.year))
+      .y0(y(0))
+      .y1(d=>y(d.value));
+
+    const areaGroup = g.append("g");
+    const caption = d3.select("#caption2");
+
+    let lockedKey = null;
+
+    function setFade(key){
+      series.forEach(s=>{
+        s._path.classed("faded", key && s.key !== key);
+      });
+    }
+
+    function lockSeries(key){
+      lockedKey = key;
+      setFade(key);
+      const meta = series.find(s=>s.key===key);
+      caption.text(`Highlighting ${meta.name} over time (values are approximate). Tap again to reset.`);
+    }
+
+    function unlockSeries(){
+      lockedKey = null;
+      setFade(null);
+      applyStep2();
+    }
+
+    series.forEach((s,i) => {
+      const values = data.map(d=>({year:d.year,value:d[s.key]}));
+
+      const path = areaGroup.append("path")
+        .datum(values)
+        .attr("class","series-area")
+        .attr("fill",s.color)
+        .attr("d", area.y1(()=>y(0)))
+        .on("mouseover",()=>{
+          if(!lockedKey) setFade(s.key);
+        })
+        .on("mouseout",()=>{
+          if(!lockedKey) setFade(null);
+        })
+        .on("pointerdown",(event)=>{
+          event.preventDefault();
+          if(lockedKey === s.key) unlockSeries();
+          else lockSeries(s.key);
+        });
+
+      path.transition()
+        .delay(250*i)
+        .duration(900)
+        .attr("d", area.y1(d=>y(d.value)));
+
+      s._path = path;
+    });
+
+    const legend = g.append("g")
+      .attr("transform","translate(10,10)");
+
+    const legendItem = legend.selectAll("g.item")
+      .data(series)
+      .enter().append("g")
+        .attr("class","legend-item")
+        .attr("transform",(d,i)=>`translate(0,${i*16})`)
+        .on("mouseover",(event,d)=>{
+          if(!lockedKey){
+            setFade(d.key);
+          }
+        })
+        .on("mouseout",()=>{
+          if(!lockedKey){
+            setFade(null);
+          }
+        })
+        .on("pointerdown",(event,d)=>{
+          event.preventDefault();
+          if(lockedKey === d.key) unlockSeries();
+          else lockSeries(d.key);
+        });
+
+    legendItem.append("rect")
+      .attr("class","legend-swatch")
+      .attr("x",0).attr("y",-10)
+      .attr("width",15).attr("height",10)
+      .attr("fill",d=>d.color);
+
+    legendItem.append("text")
+      .attr("x",22).attr("y",-3)
+      .text(d=>d.name);
+
+    const steps2 = [
+      "Step 1: Axes only – time on the x-axis and a generic frequency scale on the y-axis.",
+      "Step 2: Add the set and sequence model areas to show early approaches.",
+      "Step 3: Add the vector model area to highlight representation learning.",
+      "Step 4: Add the end-to-end model area, showing its rise and decline."
+    ];
+    let stepIndex2 = -1;
+
+    function applyStep2(){
+      if(lockedKey !== null){
+        return;
+      }
+      series.forEach(s=>{
+        let show = false;
+        if(stepIndex2 === -1){
+          show = true;
+        }else if(stepIndex2 === 0){
+          show = false;
+        }else if(stepIndex2 === 1){
+          show = (s.key==="set" || s.key==="seq");
+        }else if(stepIndex2 === 2){
+          show = (["set","seq","vec"].includes(s.key));
+        }else if(stepIndex2 === 3){
+          show = true;
+        }
+        s._path.style("display", show ? null : "none");
+      });
+    }
+
+    function renderStep2(){
+      if(stepIndex2 === -1){
+        caption.text("Note that the values are not to be exactly replicated");
+      }else{
+        caption.text(steps2[stepIndex2]);
+      }
+      applyStep2();
+    }
+
+    document.getElementById("nextStep2").addEventListener("click", ()=>{
+      if(lockedKey !== null){ unlockSeries(); }
+      if(stepIndex2 === -1) stepIndex2 = 0;
+      else stepIndex2 = (stepIndex2 + 1) % steps2.length;
+      renderStep2();
+    });
+
+    document.getElementById("prevStep2").addEventListener("click", ()=>{
+      if(lockedKey !== null){ unlockSeries(); }
+      if(stepIndex2 === -1) stepIndex2 = steps2.length - 1;
+      else{
+        stepIndex2--;
+        if(stepIndex2 < 0) stepIndex2 = steps2.length - 1;
+      }
+      renderStep2();
+    });
+
+    renderStep2();
+  })();
+  </script>
+
+  <!-- CHART 3 SCRIPT -->
+  <script>
+  (function(){
+    const svg = d3.select("#chart3");
+    const g = svg.append("g").attr("transform","translate(40,20)");
+
+    const R = 95;
+    const centers = {
+      replace: {x:280, y:90},
+      delete : {x:200, y:190},
+      rewrite: {x:360, y:190}
+    };
+
+    const circlesData = [
+      {key:"delete",  cx:centers.delete.x,  cy:centers.delete.y,  cls:"venn-circle delete-circle"},
+      {key:"replace", cx:centers.replace.x, cy:centers.replace.y, cls:"venn-circle replace-circle"},
+      {key:"rewrite", cx:centers.rewrite.x, cy:centers.rewrite.y, cls:"venn-circle rewrite-circle"}
+    ];
+
+    const circles = g.selectAll("circle.venn-circle")
+      .data(circlesData)
+      .enter().append("circle")
+        .attr("class",d=>d.cls)
+        .attr("cx",d=>d.cx)
+        .attr("cy",d=>d.cy)
+        .attr("r",0);
+
+    circles.transition().duration(700).attr("r",R);
+
+    const labelReplace = g.append("text")
+      .attr("class","label-title")
+      .attr("x",centers.replace.x+60).attr("y",8).text("Replace");
+    const labelDelete = g.append("text")
+      .attr("class","label-title")
+      .attr("x",centers.delete.x-120).attr("y",centers.delete.y+95).text("Delete");
+    const labelRewrite = g.append("text")
+      .attr("class","label-title")
+      .attr("x",centers.rewrite.x+105).attr("y",centers.rewrite.y+4).text("Rewrite");
+
+    const outerLabels = [
+      {key:"replace", sel:labelReplace},
+      {key:"delete",  sel:labelDelete},
+      {key:"rewrite", sel:labelRewrite}
+    ];
+
+    const mid = {
+      delRep: {x:(centers.delete.x + centers.replace.x)/2,  y:(centers.delete.y + centers.replace.y)/2},
+      rewRep: {x:(centers.rewrite.x + centers.replace.x)/2, y:(centers.rewrite.y + centers.replace.y)/2},
+      delRew: {x:(centers.delete.x + centers.rewrite.x)/2, y:(centers.delete.y + centers.rewrite.y)/2}
+    };
+
+    const romans = [
+      {txt:"I",   x:centers.delete.x-38,  y:centers.delete.y+28},
+      {txt:"II",  x:centers.replace.x,    y:centers.replace.y+16},
+      {txt:"III", x:centers.rewrite.x+30, y:centers.rewrite.y+22},
+      {txt:"IV",  x:mid.delRep.x-6,       y:mid.delRep.y-8},
+      {txt:"V",   x:mid.rewRep.x+6,       y:mid.rewRep.y-10},
+      {txt:"VI",  x:mid.delRew.x-10,      y:mid.delRew.y+20},
+      {txt:"VII", x:mid.delRew.x-12,      y:mid.delRew.y-10}
+    ];
+
+    const romanText = g.selectAll("text.roman")
+      .data(romans).enter().append("text")
+        .attr("class","label-roman")
+        .attr("x",d=>d.x).attr("y",d=>d.y)
+        .style("opacity",1).text(d=>d.txt);
+
+    const status = d3.select("#status3");
+
+    const steps = [
+      "Step 1: I drew three circles (Delete, Replace, Rewrite).",
+      "Step 2: I added regions I, II, III in single areas.",
+      "Step 3: I placed IV, V, VI in pairwise overlaps.",
+      "Step 4: I stacked VII in the centre lens."
+    ];
+    let stepIndex = -1;
+
+    function applyStepVisuals(){
+      if(stepIndex === -1){
+        circles.style("opacity",0.55).style("stroke-width",1);
+        romanText.style("opacity",1).attr("font-size",16);
+        return;
+      }
+      circles.style("opacity",0.45).style("stroke-width",1);
+      romanText.style("opacity",0).attr("font-size",16);
+      if(stepIndex === 1){
+        romanText.filter(d=>["I","II","III"].includes(d.txt)).style("opacity",1);
+      } else if(stepIndex === 2){
+        romanText.filter(d=>["IV","V","VI"].includes(d.txt)).style("opacity",1);
+      } else if(stepIndex === 3){
+        romanText.style("opacity",1);
+        romanText.filter(d=>d.txt==="VII").attr("font-size",16);
+        circles.style("opacity",0.55);
+      }
+    }
+
+    function renderStep(){
+      status.text(stepIndex === -1 ?
+        "Initial view: full Venn diagram. Click a circle to highlight everything inside that set." :
+        steps[stepIndex]);
+      applyStepVisuals();
+    }
+
+    document.getElementById("nextStep3").addEventListener("click", ()=>{
+      stepIndex = stepIndex === -1 ? 0 : (stepIndex + 1) % steps.length;
+      renderStep();
+    });
+    document.getElementById("prevStep3").addEventListener("click", ()=>{
+      stepIndex = stepIndex === -1 ? steps.length - 1 : (stepIndex - 1 + steps.length) % steps.length;
+      renderStep();
+    });
+
+    const setToRegions = {
+      delete : ["I","IV","VI","VII"],
+      replace: ["II","IV","V","VII"],
+      rewrite: ["III","V","VI","VII"]
+    };
+
+    function highlightSet(key){
+      circles.style("opacity", d => d.key === key ? 0.9 : 0.25)
+             .style("stroke-width", d => d.key === key ? 2 : 1);
+
+      const keep = new Set(setToRegions[key]);
+      romanText.style("opacity", d => keep.has(d.txt) ? 1 : 0.15)
+               .attr("font-size", d => d.txt === "VII" ? 20 : 16);
+
+      const name = key==="delete" ? "Delete" : key==="replace" ? "Replace" : "Rewrite";
+      status.text(`Highlighting everything inside ${name}: ${Array.from(keep).join(", ")}.`);
+    }
+
+    circles.on("click",(e,d)=>highlightSet(d.key));
+    outerLabels.forEach(obj => obj.sel.on("click",()=>highlightSet(obj.key)));
+
+    renderStep();
+  })();
+  </script>
+
+  <!-- CHART 4 SCRIPT – manual wide inner 100% ticks -->
+  <script>
+  (function(){
+
+    const data = [
+      {model:"BERT",    main:74.4, ghost:64.8},
+      {model:"RoBERTa", main:81.9, ghost:65.5},
+      {model:"BART",    main:73.1, ghost:63.5}
+    ];
+
+    const svg = d3.select("#chart4");
+    const width  = +svg.attr("width");
+    const height = +svg.attr("height");
+
+    const margin = {top:60,right:40,bottom:80,left:90};
+    const innerWidth  = width  - margin.left - margin.right;
+    const innerHeight = height - margin.top  - margin.bottom;
+
+    const g = svg.append("g")
+      .attr("transform",`translate(${margin.left},${margin.top})`);
+
+    const frameTop    = 10;
+    const frameBottom = innerHeight;
+    const frameHeight = frameBottom - frameTop;
+
+    const axisBottom  = frameBottom;
+    const axisTop     = frameTop + 45;
+
+    // grey frame
+    g.append("rect")
+      .attr("x",0)
+      .attr("y",frameTop)
+      .attr("width",innerWidth)
+      .attr("height",frameHeight)
+      .attr("fill","none")
+      .attr("stroke","#777")
+      .attr("stroke-width",4);
+
+    const x = d3.scaleBand()
+      .domain(data.map(d=>d.model))
+      .range([0,innerWidth])
+      .padding(0.35);
+
+    const y = d3.scaleLinear()
+      .domain([0,100])
+      .range([axisBottom,axisTop]);
+
+    // axis only for labels
+    const yAxis = d3.axisLeft(y)
+      .tickValues([0,100])
+      .tickFormat(d=>d);
+
+    const yAxisG = g.append("g")
+      .attr("class","axis axis-bar")
+      .call(yAxis);
+
+    yAxisG.select(".domain").remove();
+    // remove default tiny tick lines
+    yAxisG.selectAll(".tick line").attr("x2",0);
+
+    const y0    = y(0);
+    const y100  = y(100);
+    const tickW = 20;
+
+    // big left ticks inside box
+    g.append("line")
+      .attr("x1",0).attr("x2",tickW)
+      .attr("y1",y0).attr("y2",y0)
+      .attr("stroke","#777")
+      .attr("stroke-width",4);
+
+    g.append("line")
+      .attr("x1",0).attr("x2",tickW)
+      .attr("y1",y100).attr("y2",y100)
+      .attr("stroke","#777")
+      .attr("stroke-width",4);
+
+    // right 100% tick inside, same width
+    g.append("line")
+      .attr("x1",innerWidth)
+      .attr("x2",innerWidth - tickW)
+      .attr("y1",y100)
+      .attr("y2",y100)
+      .attr("stroke","#777")
+      .attr("stroke-width",4);
+
+    // title
+    g.append("text")
+      .attr("class","chart-title")
+      .attr("x",innerWidth/2)
+      .attr("y",frameTop + 30)
+      .attr("text-anchor","middle")
+      .text("Cross Validation Accuracy (%)");
+
+    const barFullWidth = x.bandwidth();
+    const mainWidth  = barFullWidth * 0.32;
+    const ghostWidth = barFullWidth * 0.32;
+
+    const mainBars = g.selectAll(".main-bar")
+      .data(data)
+      .enter().append("rect")
+        .attr("class","main-bar")
+        .attr("x",d => x(d.model) + barFullWidth*0.10)
+        .attr("width",mainWidth)
+        .attr("y",y(0))
+        .attr("height",0);
+
+    const ghostBars = g.selectAll(".ghost-bar")
+      .data(data)
+      .enter().append("rect")
+        .attr("class","ghost-bar")
+        .attr("x",d => x(d.model) + barFullWidth*0.56)
+        .attr("width",ghostWidth)
+        .attr("y",y(0))
+        .attr("height",0);
+
+    const labelsMain = g.selectAll(".main-value")
+      .data(data)
+      .enter().append("text")
+        .attr("class","value-label")
+        .attr("text-anchor","middle")
+        .attr("x",d => x(d.model) + barFullWidth*0.26)
+        .attr("y",y(100)-5)
+        .text("");
+
+    const labelsGhost = g.selectAll(".ghost-value")
+      .data(data)
+      .enter().append("text")
+        .attr("class","value-label")
+        .attr("text-anchor","middle")
+        .attr("x",d => x(d.model) + barFullWidth*0.82)
+        .attr("y",y(100)-5)
+        .text("");
+
+    const modelLabels = g.selectAll(".model-label")
+      .data(data)
+      .enter().append("text")
+        .attr("class","model-label")
+        .attr("text-anchor","middle")
+        .attr("x",d => x(d.model) + barFullWidth/2)
+        .attr("y",frameBottom + 38)
+        .text(d => d.model);
+
+    const status = d3.select("#status4");
+
+    mainBars.transition()
+      .duration(900)
+      .attr("y",d => y(d.main))
+      .attr("height",d => y(0) - y(d.main));
+
+    ghostBars.transition()
+      .delay(200)
+      .duration(900)
+      .attr("y",d => y(d.ghost))
+      .attr("height",d => y(0) - y(d.ghost));
+
+    labelsMain.transition()
+      .delay(900)
+      .attr("y",d => y(d.main) - 4)
+      .text(d => d.main.toFixed(1));
+
+    labelsGhost.transition()
+      .delay(900)
+      .attr("y",d => y(d.ghost) - 4)
+      .text(d => d.ghost.toFixed(1));
+
+    function highlight(model){
+      mainBars.style("opacity",d=>d.model===model?1:0.35);
+      ghostBars.style("opacity",d=>d.model===model?1:0.25);
+    }
+    function resetHighlight(){
+      mainBars.style("opacity",1);
+      ghostBars.style("opacity",1);
+    }
+    function setStatus(d){
+      status.text(
+        `${d.model}: main accuracy ${d.main.toFixed(1)}%, dashed baseline ${d.ghost.toFixed(1)}%`
+      );
+    }
+    function addBarEvents(sel){
+      sel.on("pointerdown",(event,d)=>{
+          event.preventDefault();
+          highlight(d.model);
+          setStatus(d);
+        })
+        .on("mouseover",(event,d)=>{
+          highlight(d.model);
+          setStatus(d);
+        })
+        .on("mouseout",()=>{
+          resetHighlight();
+          renderStep4();
+        });
+    }
+    addBarEvents(mainBars);
+    addBarEvents(ghostBars);
+
+    const steps4 = [
+      "Step 1: I drew the grey box and the 0–100% vertical scale with ticks at both sides for 100%.",
+      "Step 2: I added the filled yellow bars for cross-validation accuracy.",
+      "Step 3: I added the dashed yellow baseline bars next to each main bar.",
+      "Step 4: I placed numeric labels and model names to match the paper figure."
+    ];
+
+    let stepIndex4 = -1;
+
+    function applyStepVisuals4(){
+      if(stepIndex4 === -1){
+        mainBars.style("opacity",1);
+        ghostBars.style("opacity",1);
+        labelsMain.style("opacity",1);
+        labelsGhost.style("opacity",1);
+        modelLabels.style("opacity",1);
+        return;
+      }
+      mainBars.style("opacity",0);
+      ghostBars.style("opacity",0);
+      labelsMain.style("opacity",0);
+      labelsGhost.style("opacity",0);
+      modelLabels.style("opacity",1);
+
+      if(stepIndex4 === 0){
+      } else if(stepIndex4 === 1){
+        mainBars.style("opacity",1);
+      } else if(stepIndex4 === 2){
+        mainBars.style("opacity",0.4);
+        ghostBars.style("opacity",1);
+      } else if(stepIndex4 === 3){
+        mainBars.style("opacity",1);
+        ghostBars.style("opacity",1);
+        labelsMain.style("opacity",1);
+        labelsGhost.style("opacity",1);
+      }
+    }
+
+    function renderStep4(){
+      if(stepIndex4 === -1){
+        status.text(
+          "Initial view: full chart. Use the buttons to walk through how it was built, or hover/tap a bar to see values."
+        );
+      } else {
+        status.text(steps4[stepIndex4]);
+      }
+      applyStepVisuals4();
+    }
+
+    document.getElementById("nextStep4").addEventListener("click", ()=>{
+      if(stepIndex4 === -1) stepIndex4 = 0;
+      else stepIndex4 = (stepIndex4 + 1) % steps4.length;
+      renderStep4();
+    });
+
+    document.getElementById("prevStep4").addEventListener("click", ()=>{
+      if(stepIndex4 === -1) stepIndex4 = steps4.length - 1;
+      else{
+        stepIndex4--;
+        if(stepIndex4 < 0) stepIndex4 = steps4.length - 1;
+      }
+      renderStep4();
+    });
+
+    renderStep4();
+  })();
+  </script>
+
+  <!-- CHART 5 SCRIPT -->
+  <script>
+  (function(){
+
+    const svg = d3.select("#chart5");
+    const width  = +svg.attr("width");
+    const height = +svg.attr("height");
+
+    const margin = {top:15,right:15,bottom:35,left:60};
+    const innerWidth  = width  - margin.left - margin.right;
+    const innerHeight = height - margin.top  - margin.bottom;
+
+    const g = svg.append("g")
+      .attr("transform",`translate(${margin.left},${margin.top})`);
+
+    const xs = d3.range(-2, 5.001, 0.02);
+
+    function normalPdf(x, m, s){
+      const z = (x - m)/s;
+      return (1/(Math.sqrt(2*Math.PI)*s)) * Math.exp(-0.5*z*z);
+    }
+
+    const scale0 = 0.5301518800844566;
+    const scale1 = 0.5013256549262001;
+
+    const data = xs.map(x => ({
+      x,
+      y0: normalPdf(x, 0, 0.9) * scale0,
+      y1: normalPdf(x, 2, 0.8) * scale1
+    }));
+
+    const x = d3.scaleLinear()
+      .domain([-2,5])
+      .range([0,innerWidth]);
+
+    const y = d3.scaleLinear()
+      .domain([0,0.35])
+      .range([innerHeight,0]);
+
+    const xTicks = d3.range(-2,6,1);
+    const yTicks = d3.range(0,0.36,0.05);
+
+    const xGrid = d3.axisBottom(x).tickValues(xTicks);
+    const yGrid = d3.axisLeft(y).tickValues(yTicks);
+
+    g.append("g")
+      .attr("class","grid")
+      .attr("transform",`translate(0,${innerHeight})`)
+      .call(xGrid.tickSize(-innerHeight).tickFormat(""));
+
+    g.append("g")
+      .attr("class","grid")
+      .call(yGrid.tickSize(-innerWidth).tickFormat(""));
+
+    const xAxis = d3.axisBottom(x).tickValues(xTicks);
+    const yAxis = d3.axisLeft(y).tickValues(yTicks).tickFormat(d3.format(".2f"));
+
+    g.append("g")
+      .attr("class","axis")
+      .attr("transform",`translate(0,${innerHeight})`)
+      .call(xAxis);
+
+    g.append("g")
+      .attr("class","axis")
+      .call(yAxis);
+
+    g.append("text")
+      .attr("x",-innerHeight/2)
+      .attr("y",-38)
+      .attr("transform","rotate(-90)")
+      .attr("text-anchor","middle")
+      .attr("font-size",22)
+      .text("Probability Density");
+
+    g.append("text")
+      .attr("x",innerWidth/2)
+      .attr("y",innerHeight+30)
+      .attr("text-anchor","middle")
+      .attr("font-size",22)
+      .text("x");
+
+    const line = d3.line()
+      .curve(d3.curveBasis)
+      .x(d=>x(d.x))
+      .y(d=>y(d.y));
+
+    const pdfs = [
+      {key:"y0", name:"p(x, y = 0) * v(x)", color:"#f5b726"},
+      {key:"y1", name:"p(x, y = 1) * v(x)", color:"#1b8c96"}
+    ];
+
+    pdfs.forEach(p => {
+      const mapped = data.map(v => ({x:v.x, y:v[p.key]}));
+      p.path = g.append("path")
+        .datum(mapped)
+        .attr("class","pdf-line")
+        .attr("stroke",p.color)
+        .attr("d",line)
+        .style("opacity",0.95);
+    });
+
+    const cutL = 0.5;
+    const cutR = 1.5;
+
+    const baseL = 0.0;
+    const baseR = 2.0;
+
+    const baseData = data.filter(d => d.x>=baseL && d.x<=baseR);
+    const dottedData = data.filter(d => d.x>=cutL && d.x<=cutR);
+
+    const areaLight = d3.area()
+      .x(d=>x(d.x))
+      .y0(y(0))
+      .y1(d=>y(Math.min(d.y0,d.y1)));
+
+    const areaDark = d3.area()
+      .x(d=>x(d.x))
+      .y0(y(0))
+      .y1(d=>y(Math.max(d.y0,d.y1)));
+
+    const shadeLightPath = g.append("path")
+      .datum(baseData)
+      .attr("class","shade")
+      .attr("d",areaLight);
+
+    const shadeDarkPath = g.append("path")
+      .datum(dottedData)
+      .attr("class","shade-dark")
+      .attr("d",areaDark);
+
+    const topY = y(0.35);
+
+    g.append("line")
+      .attr("x1",x(cutL)).attr("x2",x(cutL))
+      .attr("y1",y(0)).attr("y2",topY)
+      .attr("stroke","#555")
+      .attr("stroke-dasharray","4 4");
+
+    g.append("line")
+      .attr("x1",x(cutR)).attr("x2",x(cutR))
+      .attr("y1",y(0)).attr("y2",topY)
+      .attr("stroke","#555")
+      .attr("stroke-dasharray","4 4");
+
+    g.append("line")
+      .attr("x1",x(cutL)).attr("x2",x(cutR))
+      .attr("y1",y(0)).attr("y2",y(0))
+      .attr("stroke","#555")
+      .attr("stroke-dasharray","4 4");
+
+    const legend = g.append("g")
+      .attr("transform",`translate(${innerWidth-260},25)`);
+
+    const legendItem = legend.selectAll("g.item")
+      .data(pdfs)
+      .enter().append("g")
+        .attr("class","legend-item")
+        .attr("transform",(d,i)=>`translate(0,${i*28})`);
+
+    legendItem.append("line")
+      .attr("class","legend-line")
+      .attr("x1",0).attr("x2",70)
+      .attr("y1",-7).attr("y2",-7)
+      .attr("stroke",d=>d.color);
+
+    legendItem.append("text")
+      .attr("x",80).attr("y",-2)
+      .style("font-style","italic")
+      .text(d=>d.name);
+
+    const steps5 = [
+      "Step 1: Axes and grid only (curves hidden).",
+      "Step 2: Add the yellow curve p(x, y = 0) · v(x).",
+      "Step 3: Add the teal curve p(x, y = 1) · v(x).",
+      "Step 4: Shade below the overlap from 0 to 2 (light) and the full region inside the dashed cuts (dark)."
+    ];
+
+    let stepIndex5 = -1;
+    let clickModeKey = null;
+    const status5 = d3.select("#status5");
+
+    function showFullChart(){
+      pdfs.forEach(p=>p.path.style("opacity",0.95));
+      shadeLightPath.style("opacity",0.45);
+      shadeDarkPath.style("opacity",0.65);
+    }
+
+    function applyStepVisuals5(){
+      pdfs.forEach(p=>p.path.style("opacity",0));
+      shadeLightPath.style("opacity",0);
+      shadeDarkPath.style("opacity",0);
+
+      if(stepIndex5 === 0){
+      }else if(stepIndex5 === 1){
+        pdfs.find(p=>p.key==="y0").path.style("opacity",0.95);
+      }else if(stepIndex5 === 2){
+        pdfs.forEach(p=>p.path.style("opacity",0.95));
+      }else if(stepIndex5 === 3){
+        pdfs.forEach(p=>p.path.style("opacity",0.95));
+        shadeLightPath.style("opacity",0.45);
+        shadeDarkPath.style("opacity",0.65);
+      }
+    }
+
+    function applyClickHighlight(key){
+      clickModeKey = key;
+      pdfs.forEach(p=>{
+        p.path.style("opacity", p.key===key ? 0.98 : 0.18);
+      });
+      shadeLightPath.style("opacity",0.30);
+      shadeDarkPath.style("opacity",0.30);
+      const lbl = pdfs.find(p=>p.key===key).name;
+      status5.html(`Click highlight: focusing on <i>${lbl}</i>.`);
+    }
+
+    function renderStep5(){
+      if(clickModeKey !== null){
+        applyClickHighlight(clickModeKey);
+        return;
+      }
+      if(stepIndex5 === -1){
+        status5.text("Initial view: full chart.");
+        showFullChart();
+      }else{
+        status5.html(steps5[stepIndex5]);
+        applyStepVisuals5();
+      }
+    }
+
+    document.getElementById("nextStep5").addEventListener("click", ()=>{
+      clickModeKey = null;
+      if(stepIndex5 === -1) stepIndex5 = 0;
+      else stepIndex5 = (stepIndex5 + 1) % steps5.length;
+      renderStep5();
+    });
+
+    document.getElementById("prevStep5").addEventListener("click", ()=>{
+      clickModeKey = null;
+      if(stepIndex5 === -1) stepIndex5 = steps5.length - 1;
+      else{
+        stepIndex5--;
+        if(stepIndex5 < 0) stepIndex5 = steps5.length - 1;
+      }
+      renderStep5();
+    });
+
+    legendItem.on("click",(event,d)=>applyClickHighlight(d.key));
+    pdfs.forEach(p=>{
+      p.path.on("click",()=>applyClickHighlight(p.key));
+    });
+
+    renderStep5();
+  })();
+  </script>
+
+</body>
+</html>
